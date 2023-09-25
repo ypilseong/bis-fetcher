@@ -1,0 +1,5 @@
+name: "BIS Fetcher"
+authors: "Young Joon Lee <entelecheia@hotmail.com>"
+description: "A python library to scrape the BIS website"
+homepage: "https://entelecheia.github.io/bis-fetcher"
+license: "MIT"

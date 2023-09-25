@@ -1,0 +1,34 @@
+# Changes here will be overwritten by Copier; do NOT edit manually
+_commit: v0.11.7
+_src_path: gh:entelecheia/hyperfast-python-template
+author: Young Joon Lee
+build_and_release: true
+code_template_answers_file: .copier-hyfi-config.yaml
+code_template_source: gh:entelecheia/hyfi-template
+codecov_graph_token: '[REPLACE_ME]'
+copyright_year: 2023
+documentaion_tool: jupyter-book
+documentation_url: https://entelecheia.github.io/bis-fetcher
+email: entelecheia@hotmail.com
+favicon_path: ''
+friendly_name: BIS Fetcher
+github_repo_name: bis-fetcher
+github_username: entelecheia
+google_analytics_id: ''
+logo_path: ''
+main_branch: main
+package_name: bis_fetcher
+package_scripts:
+- bis_fetcher = 'bis_fetcher.__cli__:main'
+poe_task_files:
+- .tasks.toml
+- .tasks-extra.toml
+project_description: A python library to scrape the BIS website
+project_license: MIT
+project_name: bis-fetcher
+project_short_description: A python library to scrape the BIS website
+upload_to_release: true
+upload_to_repository: true
+use_launch_buttons: true
+use_source_code_skeleton: true
+
