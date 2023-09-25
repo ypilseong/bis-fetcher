@@ -39,8 +39,8 @@ html:
   use_issues_button: true
   use_repository_button: true
   use_edit_page_button: true
-  # favicon: Path to the favicon image
-  # google_analytics_id: Google Analytics ID
+  favicon: https://assets.entelecheia.ai/favicon.png # favicon: Path to the favicon image
+  google_analytics_id: G-RGCZCJ4ZZF # google_analytics_id: Google Analytics ID
 
 sphinx:
   config:
