@@ -19,12 +19,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -49,9 +49,9 @@
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -71,6 +71,13 @@
     <script src="_static/togglebutton.js"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="_static/design-tabs.js"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-RGCZCJ4ZZF"></script>
+    <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){ dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', 'G-RGCZCJ4ZZF');
+            </script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
 const thebe_selector = ".thebe,.cell"
 const thebe_selector_input = "pre"
@@ -80,6 +87,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script>window.MathJax = {"tex": {"macros": {"N": "\\mathbb{N}", "floor": ["\\lfloor#1\\rfloor", 1], "bmat": ["\\left[\\begin{array}"], "emat": ["\\end{array}\\right]"]}}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="shortcut icon" href="https://assets.entelecheia.ai/favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Usage" href="usage.html" />
@@ -163,6 +171,7 @@ const thebe_selector_output = ".output, .cell_output"
   
   
   
+  
     <p class="title logo__title">BIS Fetcher</p>
   
 </a></div>
@@ -181,6 +190,11 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/bis_fetcher.html">bis_fetcher</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/bis_fetcher.conf.html">bis_fetcher.conf</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/bis_fetcher.fetcher.html">bis_fetcher.fetcher</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/bis_fetcher.fetcher.base.html">bis_fetcher.fetcher.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/bis_fetcher.fetcher.bis.html">bis_fetcher.fetcher.bis</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -418,16 +432,19 @@ document.write(`
 <a class="reference external" href="https://github.com/entelecheia/bis-fetcher/releases"><img alt="release-date-image" src="https://img.shields.io/github/release-date/entelecheia/bis-fetcher" /></a>
 <a class="reference external" href="https://github.com/entelecheia/bis-fetcher/blob/main/LICENSE"><img alt="license-image" src="https://img.shields.io/github/license/entelecheia/bis-fetcher" /></a>
 <a class="reference external" href="https://entelecheia.github.io/bis-fetcher"><img alt="jupyter-book-image" src="https://jupyterbook.org/en/stable/_images/badge.svg" /></a>
-<a class="reference external" href="https://codecov.io/gh/entelecheia/bis-fetcher"><img alt="codecov" src="https://codecov.io/gh/entelecheia/bis-fetcher/branch/main/graph/badge.svg?token=%5BREPLACE_ME%5D" /></a></p>
+<a class="reference external" href="https://codecov.io/gh/entelecheia/bis-fetcher"><img alt="codecov" src="https://codecov.io/gh/entelecheia/bis-fetcher/branch/main/graph/badge.svg?token=NfDlYO8LNh" /></a></p>
 <!-- Links: -->
 <!-- Links: -->
-<p>A python library to scrape the BIS website</p>
+<p>A Python library that scrapes the BIS website to download and extract text from central bank speeches.</p>
 <ul class="simple">
 <li><p>Documentation: <a class="reference external" href="https://entelecheia.github.io/bis-fetcher">https://entelecheia.github.io/bis-fetcher</a></p></li>
 <li><p>GitHub: <a class="github reference external" href="https://github.com/entelecheia/bis-fetcher">entelecheia/bis-fetcher</a></p></li>
 <li><p>PyPI: <a class="reference external" href="https://pypi.org/project/bis-fetcher">https://pypi.org/project/bis-fetcher</a></p></li>
 </ul>
-<p>A python library to scrape the BIS website</p>
+<p><code class="docutils literal notranslate"><span class="pre">bis-fetcher</span></code> is a Python library that programmatically scrapes the website of the Bank for International Settlements (BIS) to download PDF files of all available central bank speeches. It then extracts the text from these PDFs.</p>
+<p>The library allows easy access to a comprehensive dataset of central bank speeches over time. Researchers can use this data to perform quantitative analysis of central bank communication and track changes in tone, topics, and sentiment.</p>
+<p>The BIS hosts speeches by governors and other senior officials from central banks around the world. However, scraping the website manually is tedious. bis-fetcher automates the entire workflow from crawling the site to text extraction.</p>
+<p>It provides a simple API to get a list of available speeches, download the PDFs, and extract text. The text can be further processed or fed into models for analysis.</p>
 <section id="changelog">
 <h2>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h2>
 <p>See the <a class="reference external" href="https://github.com/entelecheia/bis-fetcher/blob/main/CHANGELOG.md">CHANGELOG</a> for more information.</p>
@@ -448,6 +465,11 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/bis_fetcher.html">bis_fetcher</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/bis_fetcher.conf.html">bis_fetcher.conf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/bis_fetcher.fetcher.html">bis_fetcher.fetcher</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/bis_fetcher.fetcher.base.html">bis_fetcher.fetcher.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/bis_fetcher.fetcher.bis.html">bis_fetcher.fetcher.bis</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -563,8 +585,8 @@ By Young Joon Lee
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
+  <script src="_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
 
   <footer class="bd-footer">
   </footer>
