@@ -21,8 +21,11 @@ class BaseFetcher(BaseModel):
     _config_group_: str = "/fetcher"
 
     search_url: str = ""
+    page_placeholder: str = "{page}"
+    keyword_placeholder: str = "{keyword}"
     search_keywords: List[str] = []
-    start_page: int = 1
+    start_urls: List[str] = []
+    start_page: Optional[int] = 1
     max_num_pages: Optional[int] = 2
     max_num_articles: Optional[int] = 10
     output_dir: str = f"workspace/datasets{_config_group_}/{_config_name_}"
@@ -49,8 +52,20 @@ class BaseFetcher(BaseModel):
         self.fetch_articles()
 
     @property
-    def search_keywords_encoded(self):
-        return [self.encode_keyword(keyword) for keyword in self.search_keywords]
+    def start_urls_encoded(self):
+        if self.start_urls:
+            return self.start_urls
+        if self.keyword_placeholder in self.search_url:
+            # Generate start URLs by replacing keyword placeholder with encoded keywords
+            start_urls = [
+                self.search_url.replace(
+                    self.keyword_placeholder, self.encode_keyword(keyword)
+                )
+                for keyword in self.search_keywords
+            ]
+        else:
+            start_urls = [self.search_url]
+        return start_urls
 
     def encode_keyword(self, keyword: str):
         return keyword.replace(" ", "+")
@@ -98,27 +113,35 @@ class BaseFetcher(BaseModel):
         return self._articles
 
     def fetch_links(self):
-        def parse_page_func(url: str) -> List[dict]:
-            return []
+        parse_page_func = partial(
+            self._parse_page_links,
+            print_every=self.print_every,
+            verbose=self.verbose,
+        )
 
-        self._fetch_links(parse_page_func)
+        next_page_func = partial(
+            self._next_page_func,
+            page_placeholder=self.page_placeholder,
+        )
+
+        self._fetch_links(parse_page_func, next_page_func)
 
     def fetch_articles(self):
-        def _parse_article_text(url: str) -> dict:
-            return {}
+        parse_article_text = partial(self._parse_article_text)
 
-        self._fetch_articles(_parse_article_text)
+        self._fetch_articles(parse_article_text)
 
-    def _fetch_links(self, parse_page_func: Callable):
+    def _fetch_links(self, parse_page_func: Callable, next_page_func: Callable):
         num_workers = min(self.num_workers, len(self.search_keywords))
+        num_workers = max(num_workers, 1)
         link_urls = [link["url"] for link in self.links]
         fetch_links_func = partial(
             crawl_links,
-            search_url=self.search_url,
             parse_page_func=parse_page_func,
-            link_urls=link_urls,
+            next_page_func=next_page_func,
             start_page=self.start_page,
             max_num_pages=self.max_num_pages,
+            link_urls=link_urls,
             link_filepath=self.link_filepath_tmp,
             delay_between_requests=self.delay_between_requests,
         )
@@ -150,7 +173,7 @@ class BaseFetcher(BaseModel):
         batch_func: Callable,
     ) -> List[dict]:
         with mp.Pool(num_workers) as pool:
-            results = pool.map(batch_func, self.search_keywords_encoded)
+            results = pool.map(batch_func, self.start_urls_encoded)
         links = []
         for result in results:
             links.extend(result)
@@ -198,6 +221,9 @@ class BaseFetcher(BaseModel):
         num_workers: int,
         batch_func: Callable,
     ) -> List[dict]:
+        articles = []
+        if len(self.links) < 1:
+            return articles
         batch_size = len(self.links) // num_workers
         batches = [
             self.links[i : i + batch_size]
@@ -205,19 +231,53 @@ class BaseFetcher(BaseModel):
         ]
         with mp.Pool(num_workers) as pool:
             results = pool.map(batch_func, batches)
-        articles = []
         for result in results:
             articles.extend(result)
         return articles
 
+    def _next_page_func(
+        self,
+        start_url: str,
+        current_url: Optional[str],
+        page: int,
+        page_placeholder: Optional[str],
+    ) -> Optional[str]:
+        if page_placeholder and page_placeholder in start_url:
+            # Return next page url by replacing placeholder with page number
+            page_url = start_url.replace(page_placeholder, str(page))
+        elif current_url is None:
+            page_url = start_url
+        else:
+            # TODO: implement your next page logic to return None if no more pages
+            raise NotImplementedError("Next page logic not implemented in base class")
+        logger.info("Page url: %s", page_url)
+        return page_url
+
+    def _parse_page_links(
+        self,
+        page_url: str,
+        print_every: int = 10,
+        verbose: bool = False,
+    ) -> Optional[List[dict]]:
+        """Get the links from the given page."""
+
+        # TODO: Parse the page and extract all links
+        raise NotImplementedError("Parsing links is not implemented in base class")
+
+    def _parse_article_text(self, url: str) -> dict:
+        # TODO: Scrape the article page and extract the text
+        raise NotImplementedError(
+            "Parsing article text is not implemented in base class"
+        )
+
 
 def crawl_links(
-    keyword: str,
-    search_url: str,
+    start_url: str,
     parse_page_func: Callable,
-    link_urls: Optional[List[str]] = None,
+    next_page_func: Callable,
     start_page: int = 1,
     max_num_pages: Optional[int] = 2,
+    link_urls: Optional[List[str]] = None,
     link_filepath: Optional[str] = None,
     delay_between_requests: float = 0.0,
 ) -> List[dict]:
@@ -237,15 +297,13 @@ def crawl_links(
     """
 
     page = start_page
+    page_url = None
     links = []
     link_urls = link_urls or []
-    logger.info("Fetching links for keyword: %s", keyword)
+    logger.info("Fetching links for url: %s", start_url)
     while True:
-        # TODO: Need to take care of when keyword is not passsed
-        page_url = search_url.format(page=page, keyword=keyword)
-
-        logger.info("[Keyword: %s] Page: %s", keyword, page)
-
+        # get next page url
+        page_url = next_page_func(start_url, page_url, page)
         # Parse page
         page_links = parse_page_func(page_url)
 
@@ -256,7 +314,8 @@ def crawl_links(
 
         for link in page_links:
             if link["url"] not in link_urls:
-                link["keyword"] = keyword
+                link["page_url"] = page_url
+                link["page"] = page
                 links.append(link)
                 link_urls.append(link["url"])
                 if link_filepath:
@@ -277,7 +336,7 @@ def crawl_links(
             logger.info("Sleeping for %s seconds...", delay_between_requests)
             time.sleep(delay_between_requests)
 
-    logger.info("Finished fetching links for keyword: %s", keyword)
+    logger.info("Finished fetching links for url: %s", start_url)
     logger.info("Total links fetched: %s", len(links))
     return links
 
