@@ -113,21 +113,23 @@ class BaseFetcher(BaseModel):
         return self._articles
 
     def fetch_links(self):
-        def parse_page_func(url: str) -> List[dict]:
-            return []
+        parse_page_func = partial(
+            self._parse_page_links,
+            print_every=self.print_every,
+            verbose=self.verbose,
+        )
 
         next_page_func = partial(
-            _next_page_func,
+            self._next_page_func,
             page_placeholder=self.page_placeholder,
         )
 
         self._fetch_links(parse_page_func, next_page_func)
 
     def fetch_articles(self):
-        def _parse_article_text(url: str) -> dict:
-            return {}
+        parse_article_text = partial(self._parse_article_text)
 
-        self._fetch_articles(_parse_article_text)
+        self._fetch_articles(parse_article_text)
 
     def _fetch_links(self, parse_page_func: Callable, next_page_func: Callable):
         num_workers = min(self.num_workers, len(self.search_keywords))
@@ -236,18 +238,37 @@ class BaseFetcher(BaseModel):
     def _next_page_func(
         self,
         start_url: str,
-        current_url: str,
+        current_url: Optional[str],
         page: int,
         page_placeholder: Optional[str],
     ) -> Optional[str]:
         if page_placeholder and page_placeholder in start_url:
             # Return next page url by replacing placeholder with page number
             page_url = start_url.replace(page_placeholder, str(page))
+        elif current_url is None:
+            page_url = start_url
         else:
             # TODO: implement your next page logic to return None if no more pages
-            page_url = start_url if current_url == start_url else None
+            raise NotImplementedError("Next page logic not implemented in base class")
         logger.info("Page url: %s", page_url)
         return page_url
+
+    def _parse_page_links(
+        self,
+        page_url: str,
+        print_every: int = 10,
+        verbose: bool = False,
+    ) -> Optional[List[dict]]:
+        """Get the links from the given page."""
+
+        # TODO: Parse the page and extract all links
+        raise NotImplementedError("Parsing links is not implemented in base class")
+
+    def _parse_article_text(self, url: str) -> dict:
+        # TODO: Scrape the article page and extract the text
+        raise NotImplementedError(
+            "Parsing article text is not implemented in base class"
+        )
 
 
 def crawl_links(
@@ -276,7 +297,7 @@ def crawl_links(
     """
 
     page = start_page
-    page_url = start_url
+    page_url = None
     links = []
     link_urls = link_urls or []
     logger.info("Fetching links for url: %s", start_url)
