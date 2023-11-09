@@ -32,7 +32,12 @@ class BisFetcher(BaseFetcher):
             print_every=self.print_every,
             verbose=self.verbose,
         )
-        self._fetch_links(parse_page_func)
+        next_page_func = partial(
+            self._next_page_func,
+            page_placeholder=self.page_placeholder,
+        )
+
+        self._fetch_links(parse_page_func, next_page_func)
 
     def fetch_articles(self):
         self._fetch_articles(_parse_article_text)
