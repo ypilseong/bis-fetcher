@@ -78,27 +78,28 @@ class BisFetcher(BaseFetcher):
             entry_meta_div = soup.find("div", class_="entry-meta")
 
             if entry_content_div and entry_meta_div:
-                return _extract_text(entry_content_div, entry_meta_div)
+                return self._extract_text(entry_content_div, entry_meta_div)
         except Exception as e:
             logger.error("Error while scraping the article url: %s", url)
             logger.error(e)
         return None
 
+    def _extract_text(self, entry_content_div, entry_meta_div):
+        # Find all p tags within the div and extract the text
+        p_tags = entry_content_div.find_all("p")
+        article_text = "\n".join(p_tag.text for p_tag in p_tags)
 
-def _extract_text(entry_content_div, entry_meta_div):
-    # Find all p tags within the div and extract the text
-    p_tags = entry_content_div.find_all("p")
-    article_text = "\n".join(p_tag.text for p_tag in p_tags)
+        # Extract the entry categories
+        entry_categories = [
+            a_tag.text for a_tag in entry_meta_div.find_all("a", rel="tag")
+        ]
 
-    # Extract the entry categories
-    entry_categories = [a_tag.text for a_tag in entry_meta_div.find_all("a", rel="tag")]
+        # Extract the entry time and convert it to a datetime object
+        entry_time_str = entry_meta_div.find("time", class_="entry-time")["datetime"]
+        entry_time = datetime.fromisoformat(entry_time_str)
 
-    # Extract the entry time and convert it to a datetime object
-    entry_time_str = entry_meta_div.find("time", class_="entry-time")["datetime"]
-    entry_time = datetime.fromisoformat(entry_time_str)
-
-    return {
-        "categories": entry_categories,
-        "time": entry_time.isoformat(),  # Convert datetime to string
-        "text": article_text,
-    }
+        return {
+            "categories": entry_categories,
+            "time": entry_time.isoformat(),  # Convert datetime to string
+            "text": article_text,
+        }
