@@ -1,5 +1,12 @@
 <!--next-version-placeholder-->
 
+## v0.2.0 (2023-11-09)
+
+### Feature
+
+* **fetcher:** Implement _next_page_func for handling, add support for start_urls and page_placeholder ([`fe89717`](https://github.com/entelecheia/bis-fetcher/commit/fe897179c55bdd267c7a686d56e1fd6a06e095da))
+* **bis_fetcher:** Add BaseFetcher and BisFetcher classes ([`847dc7a`](https://github.com/entelecheia/bis-fetcher/commit/847dc7af220da1329f6e44be830530f3db7e1363))
+
 ## v0.1.1 (2023-09-25)
 
 ### Fix
