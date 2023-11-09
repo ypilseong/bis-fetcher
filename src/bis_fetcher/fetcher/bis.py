@@ -26,80 +26,63 @@ class BisFetcher(BaseFetcher):
     )
     search_keywords: List[str] = []
 
-    def fetch_links(self):
-        parse_page_func = partial(
-            _parse_page_links,
-            print_every=self.print_every,
-            verbose=self.verbose,
-        )
-        next_page_func = partial(
-            self._next_page_func,
-            page_placeholder=self.page_placeholder,
-        )
+    def _parse_page_links(
+        self,
+        page_url: str,
+        print_every: int = 10,
+        verbose: bool = False,
+    ) -> Optional[List[dict]]:
+        """Get the links from the given page."""
+        links = []
+        try:
+            response = requests.get(page_url)
+            # Check if page exists (status code 200) or not (status code 404)
+            if response.status_code == 404:
+                logger.info("Page [%s] does not exist, stopping...", page_url)
+                return None
+            soup = BeautifulSoup(response.text, "html.parser")
 
-        self._fetch_links(parse_page_func, next_page_func)
+            # Find the section with class 'section-category'
+            section = soup.find("section", class_="section-category")
 
-    def fetch_articles(self):
-        self._fetch_articles(_parse_article_text)
+            # Find all articles within the section
+            articles = section.find_all("article")
 
+            for article_no, article in enumerate(articles):
+                # Extract and print article information
+                title = article.find("h2", class_="item-title").text
+                url = article.find("a")["href"]
+                if verbose and article_no % print_every == 0:
+                    logger.info("Title: %s", title)
+                    logger.info("URL: %s", url)
+                link = {
+                    "title": title,
+                    "url": url,
+                }
+                links.append(link)
+        except Exception as e:
+            logger.error("Error while fetching the page url: %s", page_url)
+            logger.error(e)
+        return links
 
-def _parse_page_links(
-    page_url: str,
-    print_every: int = 10,
-    verbose: bool = False,
-) -> Optional[List[dict]]:
-    """Get the links from the given page."""
-    links = []
-    try:
-        response = requests.get(page_url)
-        # Check if page exists (status code 200) or not (status code 404)
-        if response.status_code == 404:
-            logger.info("Page [%s] does not exist, stopping...", page_url)
-            return None
-        soup = BeautifulSoup(response.text, "html.parser")
+    def _parse_article_text(self, url: str) -> Optional[dict]:
+        """Parse the article text from the given divs."""
+        try:
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, "html.parser")
 
-        # Find the section with class 'section-category'
-        section = soup.find("section", class_="section-category")
+            # Find the div with class 'entry-content'
+            entry_content_div = soup.find("div", class_="entry-content")
 
-        # Find all articles within the section
-        articles = section.find_all("article")
+            # Find the div with class 'entry-meta'
+            entry_meta_div = soup.find("div", class_="entry-meta")
 
-        for article_no, article in enumerate(articles):
-            # Extract and print article information
-            title = article.find("h2", class_="item-title").text
-            url = article.find("a")["href"]
-            if verbose and article_no % print_every == 0:
-                logger.info("Title: %s", title)
-                logger.info("URL: %s", url)
-            link = {
-                "title": title,
-                "url": url,
-            }
-            links.append(link)
-    except Exception as e:
-        logger.error("Error while fetching the page url: %s", page_url)
-        logger.error(e)
-    return links
-
-
-def _parse_article_text(url: str) -> Optional[dict]:
-    """Parse the article text from the given divs."""
-    try:
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # Find the div with class 'entry-content'
-        entry_content_div = soup.find("div", class_="entry-content")
-
-        # Find the div with class 'entry-meta'
-        entry_meta_div = soup.find("div", class_="entry-meta")
-
-        if entry_content_div and entry_meta_div:
-            return _extract_text(entry_content_div, entry_meta_div)
-    except Exception as e:
-        logger.error("Error while scraping the article url: %s", url)
-        logger.error(e)
-    return None
+            if entry_content_div and entry_meta_div:
+                return _extract_text(entry_content_div, entry_meta_div)
+        except Exception as e:
+            logger.error("Error while scraping the article url: %s", url)
+            logger.error(e)
+        return None
 
 
 def _extract_text(entry_content_div, entry_meta_div):
