@@ -10,9 +10,8 @@ echo "Using chromedriver version: $CHROME_DRIVER_VERSION"
 
 wget —-no-verbose -O /tmp/chromedriver_linux64.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_DRIVER_VERSION/linux64/chromedriver-linux64.zip"
 
-rm -rf /opt/selenium/chromedriver
-unzip /tmp/chromedriver_linux64.zip -d /opt/selenium
-rm /tmp/chromedriver_linux64.zip
-mv /opt/selenium/chromedriver "/opt/selenium/chromedriver-$CHROME_DRIVER_VERSION"
-chmod 755 "/opt/selenium/chromedriver-$CHROME_DRIVER_VERSION"
+unzip /tmp/chromedriver_linux64.zip -d /tmp
+mkdir -p /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION
+mv /tmp/chromedriver-linux64/chromedriver "/opt/selenium/chromedriver-$CHROME_DRIVER_VERSION"
+chmod 755 "/opt/selenium/chromedrver-$CHROME_DRIVER_VERSION"
 ln -fs "/opt/selenium/chromedriver-$CHROME_DRIVER_VERSION" /usr/bin/chromedriver
