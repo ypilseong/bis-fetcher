@@ -55,7 +55,7 @@ WORKDIR $WORKSPACE_ROOT
 COPY ./.docker/scripts/ ./scripts/
 RUN if [ -f ./scripts/requirements-base.txt ]; then pip3 install -r ./scripts/requirements-base.txt; fi
 # Installs chromedriver
-RUN ./scripts/install-chromedriver.sh
+RUN sh ./scripts/install-chromedriver.sh
 
 # Sets the time zone within the container
 ENV TZ="Asia/Seoul"
