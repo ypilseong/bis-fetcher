@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # CHROME_VERSION="google-chrome-stable"
-CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0–9]+)(\.[0–9]+){3}.*/\1/")
+CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
+echo "Chrome major version detected: $CHROME_MAJOR_VERSION"
 #.    Please note that the steps mentioned below now can be
 #.    replaced with Web driver manager which do the the download
 #.    and setup of driver
