@@ -14,21 +14,18 @@ LABEL org.opencontainers.image.licenses="MIT"
 
 # Setting this argument prevents interactive prompts during the build process
 ARG DEBIAN_FRONTEND=noninteractive
-# Adding trusting keys to apt for repositories
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-# Adding Google Chrome to the repositories
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
 # Updates the image and installs necessary packages
 RUN apt-get update --fix-missing \
-    && apt-get install -y curl wget jq sudo gosu git git-lfs zsh \
+    && apt-get install -y curl wget jq sudo gosu git git-lfs zsh unzip \
     python3-launchpadlib software-properties-common build-essential \
     locales locales-all fontconfig fonts-nanum \
     ffmpeg libsm6 libxext6 \
-    google-chrome-stable unzip \
     tzdata openssh-server \
     && add-apt-repository ppa:deadsnakes/ppa -y \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
     && apt-get update \
-    && apt-get -y install --no-install-recommends python3.9-venv python3.10-venv python3-pip \
+    && apt-get -y install --no-install-recommends python3.9-venv python3.10-venv python3-pip google-chrome-stable \
     # Cleans up unnecessary packages to reduce image size
     && apt-get autoremove -y \
     && apt-get clean -y

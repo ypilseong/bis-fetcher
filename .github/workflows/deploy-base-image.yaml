@@ -5,11 +5,11 @@ name: deploy-base-image
 on:
   workflow_call:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - docker
-  #   paths:
-  #     - .docker/**
+  push:
+    branches:
+      - docker
+    paths:
+      - .docker/**
   pull_request:
     types:
       - closed
