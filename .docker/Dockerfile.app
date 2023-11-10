@@ -1,5 +1,5 @@
 # Sets the base image for subsequent instructions
-ARG ARG_BUILD_FROM="ghcr.io/chu-aie/bis-fetcher:latest-base"
+ARG ARG_BUILD_FROM="ghcr.io/entelecheia/bis-fetcher:latest-base"
 FROM $ARG_BUILD_FROM
 
 # Setting ARGs and ENVs for user creation and workspace setup
@@ -16,7 +16,7 @@ ENV WORKSPACE_ROOT $ARG_WORKSPACE_ROOT
 RUN if [ ! -d $WORKSPACE_ROOT/projects ]; then mkdir -p $WORKSPACE_ROOT/projects; fi
 
 # Setting ARGs and ENVs for the app
-ARG ARG_APP_SOURCE_REPO="chu-aie/bis-fetcher"
+ARG ARG_APP_SOURCE_REPO="entelecheia/bis-fetcher"
 ARG ARG_APP_INSTALL_ROOT="/workspace/projects"
 ARG ARG_APP_DIRNAME="bis-fetcher"
 ARG ARG_APP_SOURCE_BRANCH="main"
