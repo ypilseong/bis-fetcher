@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# CHROME_VERSION="google-chrome-stable"
-CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
-echo "Chrome major version detected: $CHROME_MAJOR_VERSION"
+CHROME_VERSION=$(google-chrome --product-version)
+echo "Chrome version detected: $CHROME_VERSION"
 # Find the latest chromedriver version compatible with the detected Chrome version
 # https://googlechromelabs.github.io/chrome-for-testing/
 CHROME_DRIVER_VERSION="119.0.6045.105"
