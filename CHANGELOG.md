@@ -1,5 +1,11 @@
 <!--next-version-placeholder-->
 
+## v0.3.0 (2023-11-10)
+
+### Feature
+
+* **docker:** Add Dockerfile.app and Dockerfile.base files ([`5912d5c`](https://github.com/entelecheia/bis-fetcher/commit/5912d5cb98e276d2dad49053ae59cacd13783b75))
+
 ## v0.2.0 (2023-11-09)
 
 ### Feature
