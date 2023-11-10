@@ -3,13 +3,13 @@
 # CHROME_VERSION="google-chrome-stable"
 CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
 echo "Chrome major version detected: $CHROME_MAJOR_VERSION"
-#.    Please note that the steps mentioned below now can be
-#.    replaced with Web driver manager which do the the download
-#.    and setup of driver
-CHROME_DRIVER_VERSION=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+# Find the latest chromedriver version compatible with the detected Chrome version
+# https://googlechromelabs.github.io/chrome-for-testing/
+CHROME_DRIVER_VERSION="119.0.6045.105"
 echo "Using chromedriver version: $CHROME_DRIVER_VERSION"
 
-wget — no-verbose -O /tmp/chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip"
+wget —-no-verbose -O /tmp/chromedriver_linux64.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_DRIVER_VERSION/linux64/chromedriver-linux64.zip"
+
 rm -rf /opt/selenium/chromedriver
 unzip /tmp/chromedriver_linux64.zip -d /opt/selenium
 rm /tmp/chromedriver_linux64.zip
