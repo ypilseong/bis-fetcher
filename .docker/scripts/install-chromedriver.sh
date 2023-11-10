@@ -5,7 +5,7 @@ CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0–9]+)(\.[0–
 #.    Please note that the steps mentioned below now can be
 #.    replaced with Web driver manager which do the the download
 #.    and setup of driver
-CHROME_DRIVER_VERSION=$(wget — no-verbose -O — "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+CHROME_DRIVER_VERSION=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
 echo "Using chromedriver version: $CHROME_DRIVER_VERSION"
 
 wget — no-verbose -O /tmp/chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip"
