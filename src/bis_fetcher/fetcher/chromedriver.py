@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 from typing import Optional
@@ -101,19 +100,35 @@ class ChromeWebDriver:
         url: str,
         wait_time: int = 10,
     ):
+        """
+        Fetches the HTTP response for the given URL using the ChromeWebDriver.
+
+        This method sets the URL to fetch and attempts to fetch the response.
+        If an error occurs during the fetch, it logs the error and closes the ChromeWebDriver instance.
+
+        Args:
+            url (str): The URL to fetch.
+            wait_time (int, optional): The maximum time to wait for the page to load, in seconds. Defaults to 10.
+
+        Returns:
+            None
+        """
         self.url = url  # set the URL to fetch
         try:
-            self.status_code = requests.get(url).status_code  # get the HTTP status code
-            self.driver.get(url)  # get the requested URL
-            if wait_time > 0:
-                WebDriverWait(self.driver, wait_time)
-            self.title = self.driver.title
-            self.text = self.driver.page_source
-            if self.autoclose:
-                self.close()
+            self._get(url, wait_time)
         except Exception as e:
             logger.error("Error while fetching the url: %s", url)
             logger.error(e)
+            self.close()
+
+    def _get(self, url, wait_time):
+        self.status_code = requests.get(url).status_code  # get the HTTP status code
+        self.driver.get(url)  # get the requested URL
+        if wait_time > 0:
+            WebDriverWait(self.driver, wait_time)
+        self.title = self.driver.title
+        self.text = self.driver.page_source
+        if self.autoclose:
             self.close()
 
     def close(self):
