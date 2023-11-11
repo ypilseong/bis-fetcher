@@ -47,7 +47,7 @@ class BaseFetcher(BaseModel):
     key_field: str = "url"
     keyword_placeholder: str = "{keyword}"
     link_filename: str = "links.jsonl"
-    max_num_articles: Optional[int] = 10
+    max_num_articles: Optional[int] = 30
     max_num_pages: Optional[int] = 2
     num_workers: int = 1
     output_dir: str = f"workspace/datasets{_config_group_}/{_config_name_}"
@@ -58,7 +58,6 @@ class BaseFetcher(BaseModel):
     search_url: str = ""
     start_page: Optional[int] = 1
     start_urls: List[str] = []
-    use_selenium: bool = False
     verbose: bool = True
 
     _links: List[dict] = []
@@ -77,6 +76,7 @@ class BaseFetcher(BaseModel):
     def request(
         self,
         url: str,
+        use_selenium: bool = False,
         wait_time: int = 10,
         locator: Optional[Tuple[str, str]] = None,
         params: dict = None,
@@ -93,7 +93,7 @@ class BaseFetcher(BaseModel):
         Returns:
             Response object containing response text and status code
         """
-        if self.use_selenium:
+        if use_selenium:
             driver = ChromeWebDriver().get(
                 url,
                 wait_time=wait_time,
@@ -349,6 +349,7 @@ def crawl_links(
     """
 
     page = start_page
+    page_cnt = 0
     page_url = None
     links = []
     link_urls = link_urls or []
@@ -379,8 +380,9 @@ def crawl_links(
                 )
 
         page += 1
+        page_cnt += 1
 
-        if max_num_pages and page > max_num_pages:
+        if max_num_pages and page_cnt > max_num_pages:
             logger.info("Reached max number of pages, stopping...")
             break
         # Delay between requests
