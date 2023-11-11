@@ -1,13 +1,10 @@
 import logging
 from datetime import datetime
-from functools import partial
 from typing import List, Optional
 
-import requests
 from bs4 import BeautifulSoup
-from hyfi.main import HyFI
 
-from .base import BaseFetcher
+from .base import BaseFetcher, By
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +32,13 @@ class BisFetcher(BaseFetcher):
         """Get the links from the given page."""
         links = []
         try:
-            response = requests.get(page_url)
+            response = self.request(
+                page_url,
+                locator=(
+                    By.CSS_SELECTOR,
+                    "#cbspeeches_list > div > table > tbody > tr:nth-child(10) > td:nth-child(2) > div > div.title",
+                ),
+            )
             # Check if page exists (status code 200) or not (status code 404)
             if response.status_code == 404:
                 logger.info("Page [%s] does not exist, stopping...", page_url)
@@ -43,14 +46,18 @@ class BisFetcher(BaseFetcher):
             soup = BeautifulSoup(response.text, "html.parser")
 
             # Find the section with class 'section-category'
-            section = soup.find("section", class_="section-category")
+            section = soup.find("table", attrs={"class": "documentList"})
 
             # Find all articles within the section
-            articles = section.find_all("article")
+            articles = section.find_all("tr")
 
             for article_no, article in enumerate(articles):
                 # Extract and print article information
-                title = article.find("h2", class_="item-title").text
+                title_div = article.find("div", attrs={"class": "title"})
+                if title_div is None:
+                    logger.info("No title found for article %s", article_no)
+                    continue
+                title = title_div.text
                 url = article.find("a")["href"]
                 if verbose and article_no % print_every == 0:
                     logger.info("Title: %s", title)
@@ -68,7 +75,7 @@ class BisFetcher(BaseFetcher):
     def _parse_article_text(self, url: str) -> Optional[dict]:
         """Parse the article text from the given divs."""
         try:
-            response = requests.get(url)
+            response = self.request(url)
             soup = BeautifulSoup(response.text, "html.parser")
 
             # Find the div with class 'entry-content'
