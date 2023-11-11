@@ -14,10 +14,12 @@ class BisFetcher(BaseFetcher):
     Fetcher for BIS.
     """
 
-    _config_name_: str = "khmer"
+    _config_name_: str = "bis"
     _config_group_: str = "/fetcher"
     output_dir: str = f"workspace/datasets{_config_group_}/{_config_name_}"
+    use_selenium: bool = True
 
+    base_url: str = "https://www.bis.org"
     search_url: str = (
         "https://www.bis.org/cbspeeches/index.htm?m=256&cbspeeches_page={page}"
     )
@@ -58,7 +60,7 @@ class BisFetcher(BaseFetcher):
                     logger.info("No title found for article %s", article_no)
                     continue
                 title = title_div.text
-                url = article.find("a")["href"]
+                url = self.base_url + article.find("a")["href"]
                 if verbose and article_no % print_every == 0:
                     logger.info("Title: %s", title)
                     logger.info("URL: %s", url)
