@@ -6,8 +6,10 @@ from functools import partial
 from pathlib import Path
 from typing import Callable, List, Optional
 
+import requests
 from hyfi.composer import BaseModel
 from hyfi.main import HyFI
+from selenium import webdriver
 
 logger = logging.getLogger(__name__)
 
@@ -20,24 +22,26 @@ class BaseFetcher(BaseModel):
     _config_name_: str = "base"
     _config_group_: str = "/fetcher"
 
-    search_url: str = ""
-    page_placeholder: str = "{page}"
-    keyword_placeholder: str = "{keyword}"
-    search_keywords: List[str] = []
-    start_urls: List[str] = []
-    start_page: Optional[int] = 1
-    max_num_pages: Optional[int] = 2
-    max_num_articles: Optional[int] = 10
-    output_dir: str = f"workspace/datasets{_config_group_}/{_config_name_}"
-    link_filename: str = "links.jsonl"
     article_filename: str = "articles.jsonl"
-    overwrite_existing: bool = False
-    key_field: str = "url"
     delay_between_requests: float = 0.0
+    key_field: str = "url"
+    keyword_placeholder: str = "{keyword}"
+    link_filename: str = "links.jsonl"
+    max_num_articles: Optional[int] = 10
+    max_num_pages: Optional[int] = 2
     num_workers: int = 1
+    output_dir: str = f"workspace/datasets{_config_group_}/{_config_name_}"
+    overwrite_existing: bool = False
+    page_placeholder: str = "{page}"
     print_every: int = 10
+    search_keywords: List[str] = []
+    search_url: str = ""
+    start_page: Optional[int] = 1
+    start_urls: List[str] = []
+    use_selenium: bool = False
     verbose: bool = True
 
+    _driver: Optional[webdriver.Chrome] = None
     _links: List[dict] = []
     _articles: List[dict] = []
     _headers = {
@@ -50,6 +54,29 @@ class BaseFetcher(BaseModel):
     def fetch(self):
         self.fetch_links()
         self.fetch_articles()
+
+    def request(self, url: str, params: dict = None, **kwargs):
+        """Sends a GET request.
+
+        Args:
+            url (str): URL for the new :class:`Request` object.
+            params (dict, optional): Dictionary, list of tuples or bytes to send
+                in the query string for the :class:`Request`. Defaults to None.
+            \*\*kwargs: Optional arguments that ``request`` takes.
+
+        Returns:
+            requests.Response: :class:`Response <Response>` object
+        """
+        return requests.get(url, params=params, headers=self._headers, **kwargs)
+
+    def driver(self):
+        if self._driver is None:
+            options = webdriver.chrome.options.Options()
+            options.add_argument("--headless")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            self._driver = webdriver.Chrome(options=options)
+        return self._driver
 
     @property
     def start_urls_encoded(self):
