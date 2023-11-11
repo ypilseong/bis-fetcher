@@ -17,7 +17,6 @@ class BisFetcher(BaseFetcher):
     _config_name_: str = "bis"
     _config_group_: str = "/fetcher"
     output_dir: str = f"workspace/datasets{_config_group_}/{_config_name_}"
-    use_selenium: bool = True
 
     base_url: str = "https://www.bis.org"
     search_url: str = (
@@ -47,6 +46,7 @@ class BisFetcher(BaseFetcher):
         try:
             response = self.request(
                 page_url,
+                use_selenium=True,
                 locator=self.link_locator,
             )
             # Check if page exists (status code 200) or not (status code 404)
@@ -75,11 +75,19 @@ class BisFetcher(BaseFetcher):
                     continue
                 title = title_div.text
                 url = self.base_url + article.find("a")["href"]
+
+                date_ = article.find("td", class_="item_date")
+                item_date = date_.text.strip() if date_ else ""
+                author_ = article.find("a", class_="authorlnk dashed")
+                author = author_.text.strip() if author_ else ""
+
                 if verbose and article_no % print_every == 0:
                     logger.info("Title: %s", title)
                     logger.info("URL: %s", url)
                 link = {
                     "title": title,
+                    "author": author,
+                    "timestamp": item_date,
                     "url": url,
                 }
                 links.append(link)
@@ -91,38 +99,22 @@ class BisFetcher(BaseFetcher):
     def _parse_article_text(self, url: str) -> Optional[dict]:
         """Parse the article text from the given divs."""
         try:
+            if url.endswith(".pdf"):
+                return {
+                    "pdf_url": url,
+                }
+
             response = self.request(url)
             soup = BeautifulSoup(response.text, "html.parser")
+            pdf_div = soup.find("div", class_="pdftxt")
+            pdf = pdf_div.find("a", class_="pdftitle_link")["href"]
+            pdf_url = self.base_url + pdf
 
-            # Find the div with class 'entry-content'
-            entry_content_div = soup.find("div", class_="entry-content")
+            return {
+                "pdf_url": pdf_url,
+            }
 
-            # Find the div with class 'entry-meta'
-            entry_meta_div = soup.find("div", class_="entry-meta")
-
-            if entry_content_div and entry_meta_div:
-                return self._extract_text(entry_content_div, entry_meta_div)
         except Exception as e:
             logger.error("Error while scraping the article url: %s", url)
             logger.error(e)
         return None
-
-    def _extract_text(self, entry_content_div, entry_meta_div):
-        # Find all p tags within the div and extract the text
-        p_tags = entry_content_div.find_all("p")
-        article_text = "\n".join(p_tag.text for p_tag in p_tags)
-
-        # Extract the entry categories
-        entry_categories = [
-            a_tag.text for a_tag in entry_meta_div.find_all("a", rel="tag")
-        ]
-
-        # Extract the entry time and convert it to a datetime object
-        entry_time_str = entry_meta_div.find("time", class_="entry-time")["datetime"]
-        entry_time = datetime.fromisoformat(entry_time_str)
-
-        return {
-            "categories": entry_categories,
-            "time": entry_time.isoformat(),  # Convert datetime to string
-            "text": article_text,
-        }
