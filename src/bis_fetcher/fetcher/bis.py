@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 
@@ -25,6 +25,17 @@ class BisFetcher(BaseFetcher):
     )
     search_keywords: List[str] = []
 
+    link_locator: Tuple[str, str] = (
+        By.CSS_SELECTOR,
+        "#cbspeeches_list > div > table > tbody > tr:nth-child(10) > td:nth-child(2) > div > div.title",
+    )
+    link_container_name: str = "table"
+    link_container_attrs: dict = {"class": "documentList"}
+    link_find_all_name: str = "tr"
+    link_find_all_attrs: dict = {}
+    lint_article_name: str = "div"
+    lint_article_attrs: dict = {"class": "title"}
+
     def _parse_page_links(
         self,
         page_url: str,
@@ -36,10 +47,7 @@ class BisFetcher(BaseFetcher):
         try:
             response = self.request(
                 page_url,
-                locator=(
-                    By.CSS_SELECTOR,
-                    "#cbspeeches_list > div > table > tbody > tr:nth-child(10) > td:nth-child(2) > div > div.title",
-                ),
+                locator=self.link_locator,
             )
             # Check if page exists (status code 200) or not (status code 404)
             if response.status_code == 404:
@@ -48,14 +56,20 @@ class BisFetcher(BaseFetcher):
             soup = BeautifulSoup(response.text, "html.parser")
 
             # Find the section with class 'section-category'
-            section = soup.find("table", attrs={"class": "documentList"})
+            section = soup.find(
+                self.link_container_name, attrs=self.link_container_attrs
+            )
 
             # Find all articles within the section
-            articles = section.find_all("tr")
+            articles = section.find_all(
+                self.link_find_all_name, attrs=self.link_find_all_attrs
+            )
 
             for article_no, article in enumerate(articles):
                 # Extract and print article information
-                title_div = article.find("div", attrs={"class": "title"})
+                title_div = article.find(
+                    self.lint_article_name, attrs=self.lint_article_attrs
+                )
                 if title_div is None:
                     logger.info("No title found for article %s", article_no)
                     continue
