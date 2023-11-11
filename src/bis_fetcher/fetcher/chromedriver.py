@@ -1,10 +1,11 @@
 import logging
-import requests
-from typing import Optional
+from typing import Optional, Tuple
 
+import requests
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,7 @@ class ChromeWebDriver:
     text: str = ""
     title: str = ""
     url: str
+    wait_time: int = 10
 
     _driver: Optional[webdriver.Chrome] = None
 
@@ -56,6 +58,7 @@ class ChromeWebDriver:
         no_sandbox: bool = True,
         disable_dev_shm_usage: bool = True,
         autoclose: bool = True,
+        wait_time: int = 10,
     ):
         """
         Initializes a ChromeWebDriver instance.
@@ -66,6 +69,7 @@ class ChromeWebDriver:
             no_sandbox (bool): Whether to disable the Chrome sandbox. Defaults to True.
             disable_dev_shm_usage (bool): Whether to disable the /dev/shm usage. Defaults to True.
             autoclose (bool): Whether to automatically close the ChromeWebDriver instance. Defaults to True.
+            wait_time (int): The maximum time to wait for the page to load, in seconds. Defaults to 1.
         """
         self.url = url  # URL to fetch
         self.options = Options()
@@ -76,6 +80,8 @@ class ChromeWebDriver:
         if disable_dev_shm_usage:
             self.options.add_argument("--disable-dev-shm-usage")
         self.autoclose = autoclose
+        self.wait_time = wait_time
+
         self._driver = None
         self.text = ""
         self.title = ""
@@ -98,8 +104,9 @@ class ChromeWebDriver:
     def get(
         self,
         url: str,
-        wait_time: int = 10,
-    ):
+        wait_time: Optional[int] = None,
+        locator: Optional[Tuple[str, str]] = None,
+    ) -> "ChromeWebDriver":
         """
         Fetches the HTTP response for the given URL using the ChromeWebDriver.
 
@@ -109,23 +116,38 @@ class ChromeWebDriver:
         Args:
             url (str): The URL to fetch.
             wait_time (int, optional): The maximum time to wait for the page to load, in seconds. Defaults to 10.
+            wait_for_element_id (str, optional): The ID of the element to wait for. Defaults to None.
 
         Returns:
-            None
+            ChromeWebDriver: The ChromeWebDriver instance.
         """
         self.url = url  # set the URL to fetch
+        wait_time = wait_time or self.wait_time
         try:
-            self._get(url, wait_time)
+            self._get(
+                url,
+                wait_time,
+                locator=locator,
+            )
         except Exception as e:
             logger.error("Error while fetching the url: %s", url)
             logger.error(e)
             self.close()
+        return self
 
-    def _get(self, url, wait_time):
+    def _get(
+        self,
+        url: str,
+        wait_time: int = 10,
+        locator: Optional[Tuple[str, str]] = None,
+    ):
         self.status_code = requests.get(url).status_code  # get the HTTP status code
         self.driver.get(url)  # get the requested URL
-        if wait_time > 0:
-            WebDriverWait(self.driver, wait_time)
+        self.driver.refresh()
+        if wait_time > 0 and locator is not None:
+            WebDriverWait(self.driver, wait_time).until(
+                EC.presence_of_element_located(locator)
+            )
         self.title = self.driver.title
         self.text = self.driver.page_source
         if self.autoclose:
@@ -140,4 +162,3 @@ class ChromeWebDriver:
         """
         if self._driver is not None:
             self._driver.close()
-            self._driver.quit()
