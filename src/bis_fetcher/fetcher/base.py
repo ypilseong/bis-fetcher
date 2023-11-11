@@ -4,14 +4,33 @@ import multiprocessing as mp
 import time
 from functools import partial
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import requests
 from hyfi.composer import BaseModel
 from hyfi.main import HyFI
-from selenium import webdriver
+
+from .chromedriver import ChromeWebDriver
 
 logger = logging.getLogger(__name__)
+
+
+class Response(BaseModel):
+    text: str = ""
+    status_code: int = 0
+
+
+class By:
+    """Set of supported locator strategies."""
+
+    ID = "id"
+    XPATH = "xpath"
+    LINK_TEXT = "link text"
+    PARTIAL_LINK_TEXT = "partial link text"
+    NAME = "name"
+    TAG_NAME = "tag name"
+    CLASS_NAME = "class name"
+    CSS_SELECTOR = "css selector"
 
 
 class BaseFetcher(BaseModel):
@@ -41,7 +60,6 @@ class BaseFetcher(BaseModel):
     use_selenium: bool = False
     verbose: bool = True
 
-    _driver: Optional[webdriver.Chrome] = None
     _links: List[dict] = []
     _articles: List[dict] = []
     _headers = {
@@ -55,28 +73,34 @@ class BaseFetcher(BaseModel):
         self.fetch_links()
         self.fetch_articles()
 
-    def request(self, url: str, params: dict = None, **kwargs):
+    def request(
+        self,
+        url: str,
+        wait_time: int = 10,
+        locator: Optional[Tuple[str, str]] = None,
+        params: dict = None,
+        **kwargs,
+    ) -> Response:
         """Sends a GET request.
 
         Args:
-            url (str): URL for the new :class:`Request` object.
+            url (str): URL for the request
             params (dict, optional): Dictionary, list of tuples or bytes to send
-                in the query string for the :class:`Request`. Defaults to None.
-            \*\*kwargs: Optional arguments that ``request`` takes.
+                in the query string for the Request. Defaults to None.
+            **kwargs: Optional arguments that `request` takes.
 
         Returns:
-            requests.Response: :class:`Response <Response>` object
+            Response object containing response text and status code
         """
-        return requests.get(url, params=params, headers=self._headers, **kwargs)
-
-    def driver(self):
-        if self._driver is None:
-            options = webdriver.chrome.options.Options()
-            options.add_argument("--headless")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            self._driver = webdriver.Chrome(options=options)
-        return self._driver
+        if self.use_selenium:
+            driver = ChromeWebDriver().get(
+                url,
+                wait_time=wait_time,
+                locator=locator,
+            )
+            return Response(text=driver.text, status_code=driver.status_code)
+        res = requests.get(url, params=params, headers=self._headers, **kwargs)
+        return Response(text=res.text, status_code=res.status_code)
 
     @property
     def start_urls_encoded(self):
