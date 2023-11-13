@@ -29,4 +29,5 @@ bis\_fetcher.fetcher
 
    bis_fetcher.fetcher.base
    bis_fetcher.fetcher.bis
+   bis_fetcher.fetcher.chromedriver
 

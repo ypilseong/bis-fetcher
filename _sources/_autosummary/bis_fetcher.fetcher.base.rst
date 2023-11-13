@@ -25,6 +25,8 @@ bis\_fetcher.fetcher.base
    .. autosummary::
    
       BaseFetcher
+      By
+      Response
    
    
 
